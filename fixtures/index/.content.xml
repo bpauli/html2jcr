@@ -10,6 +10,7 @@
                 <title_0 sling:resourceType="core/franklin/components/title/v1/title" jcr:primaryType="nt:unstructured" jcr:title="Lorem Ipsum" type="h1"/>
                 <text_0 sling:resourceType="core/franklin/components/text/v1/text" jcr:primaryType="nt:unstructured" text="&lt;p>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&lt;br />There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&lt;/p>"/>
                 <button_0 sling:resourceType="core/franklin/components/button/v1/button" jcr:primaryType="nt:unstructured" type="primary" href="https://www.adobe.com" text="Default Button"/>
+                <image_0 sling:resourceType="core/franklin/components/image/v1/image" jcr:primaryType="nt:unstructured" alt="Frau mit Tasse und Decke" fileReference="/content/dam/eon/eon-de-zwei/images/produkt-pk/erdgas-waerme/frau-tasse-waerme.jpeg"/>
             </section_1>
             <section_2 sling:resourceType="core/franklin/components/section/v1/section" jcr:primaryType="nt:unstructured">
                 <block_0 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>

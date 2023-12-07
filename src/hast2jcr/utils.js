@@ -69,6 +69,9 @@ export function getHandler(node, parents, ctx) {
         || matchStructure(node, h('p', [h('em', [h('a')])]))) {
       return handlers.button;
     }
+    if (matchStructure(node, h('p', [h('picture', [h('img')])]))) {
+      return handlers.image;
+    }
 
     return handlers.text;
   }
