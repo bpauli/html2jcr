@@ -7,6 +7,7 @@
                 <block_1 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
             </section_0>
             <section_1 sling:resourceType="core/franklin/components/section/v1/section" jcr:primaryType="nt:unstructured">
+                <title_0 sling:resourceType="core/franklin/components/title/v1/title" jcr:primaryType="nt:unstructured" jcr:title="Lorem Ipsum" type="h1"/>
                 <text_0 sling:resourceType="core/franklin/components/text/v1/text" jcr:primaryType="nt:unstructured" text="&lt;p>Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&lt;br />There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&lt;/p>"/>
             </section_1>
             <section_2 sling:resourceType="core/franklin/components/section/v1/section" jcr:primaryType="nt:unstructured">
@@ -14,6 +15,7 @@
                 <block_1 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
             </section_2>
             <section_3 sling:resourceType="core/franklin/components/section/v1/section" jcr:primaryType="nt:unstructured" style="highlight">
+                <title_0 sling:resourceType="core/franklin/components/title/v1/title" jcr:primaryType="nt:unstructured" jcr:title="Boilerplate Highlights?" type="h2"/>
                 <text_0 sling:resourceType="core/franklin/components/text/v1/text" jcr:primaryType="nt:unstructured" text="&lt;p>Find some of our favorite staff picks below:&lt;/p>"/>
                 <block_0 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
                 <block_1 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>

@@ -53,6 +53,9 @@ export function getHandler(node, parents, ctx) {
   if (node.tagName === 'p') {
     return handlers.text;
   }
+  if (node.tagName.match(/h[1-6]/)) {
+    return handlers.title;
+  }
   return undefined;
 }
 
