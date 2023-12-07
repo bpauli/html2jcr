@@ -1,5 +1,6 @@
+import { h } from 'hastscript';
 import assert from 'assert';
-import { insertComponent, createComponentTree } from '../src/hast2jcr/utils.js';
+import { insertComponent, createComponentTree, matchStructure } from '../src/hast2jcr/utils.js';
 
 describe('Utils', () => {
   it('Insert component at a path', async () => {
@@ -70,5 +71,12 @@ describe('Utils', () => {
     const tree = createComponentTree();
     assert.deepStrictEqual(tree('a/b/c'), 0);
     assert.deepStrictEqual(tree('a/b/c'), 1);
+  });
+
+  it('match structure', async () => {
+    assert.equal(
+      matchStructure(h('p', [h('a')]), h('p', [h('a')])),
+      true,
+    );
   });
 });

@@ -1,3 +1,19 @@
+import { h } from 'hastscript';
+
+export function matchStructure(node, template) {
+  if (node.tagName !== template.tagName) {
+    return false;
+  }
+  const childElements = node.children.filter((child) => child.type === 'element');
+  if (childElements.length !== template.children.length) {
+    return false;
+  }
+  if (childElements === 0) {
+    return true;
+  }
+  return childElements.every((child, index) => matchStructure(child, template.children[index]));
+}
+
 function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
@@ -5,20 +21,15 @@ function hasOwnProperty(obj, prop) {
 export function insertComponent(obj, path, nodeName, component) {
   const keys = path.split('/');
 
-  const isMatchingPath = (currentKeys, targetKeys) => (
-    currentKeys.length === targetKeys.length
-      && currentKeys.every((key, index) => key === targetKeys[index])
-  );
+  const isMatchingPath = (currentKeys, targetKeys) => currentKeys.length === targetKeys.length
+    && currentKeys.every((key, index) => key === targetKeys[index]);
 
   const insert = (parentObj, currentPath) => {
     const newPath = currentPath ? `${currentPath}/${parentObj.name}` : `/${parentObj.name}`;
     const children = parentObj.elements || [];
     // eslint-disable-next-line no-restricted-syntax
     for (const child of children) {
-      if (isMatchingPath([
-        ...newPath.split('/'),
-        child.name,
-      ], keys)) {
+      if (isMatchingPath([...newPath.split('/'), child.name], keys)) {
         const elements = child.elements || [];
         const { rt, nt, ...rest } = component;
         child.elements = [
@@ -47,10 +58,18 @@ export function getHandler(node, parents, ctx) {
   if (node.tagName === 'div' && parents[parents.length - 1]?.tagName === 'main') {
     return handlers.section;
   }
-  if (node.tagName === 'div' && getHandler(parents[parents.length - 1], parents.slice(0, -2), ctx)?.name === 'section') {
+  if (node.tagName === 'div'
+    && getHandler(parents[parents.length - 1], parents.slice(0, -2), ctx)?.name === 'section') {
     return handlers.block;
   }
+
   if (node.tagName === 'p') {
+    if (matchStructure(node, h('p', [h('strong', [h('a')])]))
+        || matchStructure(node, h('p', [h('a')]))
+        || matchStructure(node, h('p', [h('em', [h('a')])]))) {
+      return handlers.button;
+    }
+
     return handlers.text;
   }
   if (node.tagName.match(/h[1-6]/)) {
@@ -74,7 +93,9 @@ export function createComponentTree() {
       if (props.length > 1) {
         return updateNestedTree(obj[component], props.slice(1));
       }
-      obj[component].counter = (hasOwnProperty(obj[component], 'counter') ? obj[component].counter + 1 : 0);
+      obj[component].counter = hasOwnProperty(obj[component], 'counter')
+        ? obj[component].counter + 1
+        : 0;
       return obj[component].counter;
     }
 
