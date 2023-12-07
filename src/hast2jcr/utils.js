@@ -1,4 +1,6 @@
 import { h } from 'hastscript';
+import {matches} from 'hast-util-select'
+import { inspect } from 'unist-util-inspect';
 
 export function matchStructure(node, template) {
   if (node.tagName !== template.tagName) {
@@ -55,14 +57,18 @@ export function insertComponent(obj, path, nodeName, component) {
 
 export function getHandler(node, parents, ctx) {
   const { handlers } = ctx;
-  if (node.tagName === 'div' && parents[parents.length - 1]?.tagName === 'main') {
-    return handlers.section;
+  if (node.tagName === 'div') {
+    if (parents[parents.length - 1]?.tagName === 'main') {
+      return handlers.section;
+    }
+    if (getHandler(parents[parents.length - 1], [...parents.slice(0, -1)], ctx)?.name === 'section') {
+      const blockName = node?.properties?.className[0];
+      if (blockName === 'columns') {
+        return handlers.columns;
+      }
+      return handlers.block;
+    }
   }
-  if (node.tagName === 'div'
-    && getHandler(parents[parents.length - 1], parents.slice(0, -2), ctx)?.name === 'section') {
-    return handlers.block;
-  }
-
   if (node.tagName === 'p') {
     if (matchStructure(node, h('p', [h('strong', [h('a')])]))
         || matchStructure(node, h('p', [h('a')]))
