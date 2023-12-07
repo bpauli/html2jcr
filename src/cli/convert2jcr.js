@@ -7,6 +7,7 @@ import path from 'path';
 import { html2jcr } from '../index.js';
 
 async function run(filePath) {
+  // eslint-disable-next-line no-param-reassign
   filePath = path.resolve(process.cwd(), filePath);
   const files = [];
   if ((await stat(filePath)).isDirectory()) {
@@ -15,8 +16,10 @@ async function run(filePath) {
     files.push(filePath);
   }
 
+  // eslint-disable-next-line no-restricted-syntax
   for (const file of files) {
     if (!file.endsWith('.html')) {
+      // eslint-disable-next-line no-continue
       continue;
     }
     const dir = path.dirname(file);
@@ -25,7 +28,7 @@ async function run(filePath) {
     if (!existsSync(targetPath)) {
       await mkdir(targetPath, { recursive: true });
     }
-    
+
     const fileXml = path.resolve(targetPath, '.content.xml');
 
     console.log(`converting ${file} -> ${path.relative(process.cwd(), fileXml)}`);

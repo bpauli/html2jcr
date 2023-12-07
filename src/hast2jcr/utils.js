@@ -1,36 +1,37 @@
-export function insertComponent(obj, path, nodeName, component) {
-  const keys = path.split("/");
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
 
-  const isMatchingPath = (currentKeys, targetKeys) => {
-    return (
-      currentKeys.length === targetKeys.length &&
-      currentKeys.every((key, index) => key === targetKeys[index])
-    );
-  };
+export function insertComponent(obj, path, nodeName, component) {
+  const keys = path.split('/');
+
+  const isMatchingPath = (currentKeys, targetKeys) => (
+    currentKeys.length === targetKeys.length
+      && currentKeys.every((key, index) => key === targetKeys[index])
+  );
 
   const insert = (parentObj, currentPath) => {
-    const newPath = currentPath
-      ? `${currentPath}/${parentObj["name"]}`
-      : `/${parentObj["name"]}`;
-    const children = parentObj["elements"] || [];
+    const newPath = currentPath ? `${currentPath}/${parentObj.name}` : `/${parentObj.name}`;
+    const children = parentObj.elements || [];
+    // eslint-disable-next-line no-restricted-syntax
     for (const child of children) {
       if (isMatchingPath([
-          ...newPath.split("/"),
-          child["name"],
+        ...newPath.split('/'),
+        child.name,
       ], keys)) {
-        const elements = child["elements"] || [];
+        const elements = child.elements || [];
         const { rt, nt, ...rest } = component;
-        child["elements"] = [
+        child.elements = [
           ...elements,
           {
-            type: "element",
+            type: 'element',
             name: nodeName,
             attributes: {
-              "sling:resourceType": rt,
-              "jcr:primaryType": nt || "nt:unstructured",
+              'sling:resourceType': rt,
+              'jcr:primaryType': nt || 'nt:unstructured',
               ...rest,
             },
-          }
+          },
         ];
         return;
       }
@@ -38,15 +39,16 @@ export function insertComponent(obj, path, nodeName, component) {
     }
   };
 
-  insert(obj, "");
+  insert(obj, '');
 }
 
 export function getHandler(node, parents, ctx) {
   const { handlers } = ctx;
-  if (node.tagName === "div" && parents[parents.length - 1]?.tagName === "main") {
-    return handlers["section"];
-  } else if (node.tagName === "div" && getHandler(parents[parents.length -1], parents.slice(0, -2), ctx)?.name === "section") {
-    return handlers["block"];
+  if (node.tagName === 'div' && parents[parents.length - 1]?.tagName === 'main') {
+    return handlers.section;
+  }
+  if (node.tagName === 'div' && getHandler(parents[parents.length - 1], parents.slice(0, -2), ctx)?.name === 'section') {
+    return handlers.block;
   }
   return undefined;
 }
@@ -55,20 +57,19 @@ export function createComponentTree() {
   const tree = {};
 
   return function updateTree(treePath) {
-    const path = treePath.split("/");
+    const path = treePath.split('/');
 
-    function updateNestedTree(obj, path) {
-      const component = path[0];
+    function updateNestedTree(obj, props) {
+      const component = props[0];
       if (!obj[component]) {
         obj[component] = {};
       }
 
-      if (path.length > 1) {
-        return updateNestedTree(obj[component], path.slice(1));
-      } else {
-        obj[component].counter = (obj[component].hasOwnProperty('counter') ? obj[component].counter + 1 : 0);
-        return obj[component].counter;
+      if (props.length > 1) {
+        return updateNestedTree(obj[component], props.slice(1));
       }
+      obj[component].counter = (hasOwnProperty(obj[component], 'counter') ? obj[component].counter + 1 : 0);
+      return obj[component].counter;
     }
 
     return updateNestedTree(tree, path);

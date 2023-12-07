@@ -69,8 +69,6 @@ describe('Utils', () => {
   it('test create tree', async () => {
     const tree = createComponentTree();
     assert.deepStrictEqual(tree('a/b/c'), 0);
-    debugger;
     assert.deepStrictEqual(tree('a/b/c'), 1);
-  })
-
+  });
 });

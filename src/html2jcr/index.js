@@ -1,6 +1,6 @@
-import rehypeParse from 'rehype-parse'
+import rehypeParse from 'rehype-parse';
 import { unified } from 'unified';
-import { hast2jcr } from '../index.js';
+import hast2jcr from '../hast2jcr/index.js';
 
 export default async function html2jcr(html, opts) {
   const hast = unified()

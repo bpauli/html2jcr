@@ -11,7 +11,7 @@
                 <block_0 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
                 <block_1 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
             </section_2>
-            <section_3 sling:resourceType="core/franklin/components/section/v1/section" jcr:primaryType="nt:unstructured">
+            <section_3 sling:resourceType="core/franklin/components/section/v1/section" jcr:primaryType="nt:unstructured" style="highlight">
                 <block_0 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
                 <block_1 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>
                 <block_2 sling:resourceType="core/franklin/components/block/v1/block" jcr:primaryType="nt:unstructured"/>

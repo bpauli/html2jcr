@@ -1,6 +1,6 @@
-export default function block(node, ctx) {
+export default function block() {
   const attributes = {
-    rt: "core/franklin/components/block/v1/block",
+    rt: 'core/franklin/components/block/v1/block',
   };
 
   return attributes;
