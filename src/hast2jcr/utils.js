@@ -50,6 +50,9 @@ export function getHandler(node, parents, ctx) {
   if (node.tagName === 'div' && getHandler(parents[parents.length - 1], parents.slice(0, -2), ctx)?.name === 'section') {
     return handlers.block;
   }
+  if (node.tagName === 'p') {
+    return handlers.text;
+  }
   return undefined;
 }
 
