@@ -1,6 +1,4 @@
 import { h } from 'hastscript';
-import {matches} from 'hast-util-select'
-import { inspect } from 'unist-util-inspect';
 
 export function matchStructure(node, template) {
   if (node.tagName !== template.tagName) {
@@ -28,12 +26,14 @@ export function insertComponent(obj, path, nodeName, component) {
 
   const insert = (parentObj, currentPath) => {
     const newPath = currentPath ? `${currentPath}/${parentObj.name}` : `/${parentObj.name}`;
-    const children = parentObj.elements || [];
+    const childrenObj = parentObj.elements || [];
     // eslint-disable-next-line no-restricted-syntax
-    for (const child of children) {
+    for (const child of childrenObj) {
       if (isMatchingPath([...newPath.split('/'), child.name], keys)) {
         const elements = child.elements || [];
-        const { rt, nt, ...rest } = component;
+        const {
+          rt, nt, children, ...rest
+        } = component;
         child.elements = [
           ...elements,
           {
@@ -44,6 +44,7 @@ export function insertComponent(obj, path, nodeName, component) {
               'jcr:primaryType': nt || 'nt:unstructured',
               ...rest,
             },
+            elements: children,
           },
         ];
         return;
