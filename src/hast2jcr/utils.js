@@ -1,10 +1,11 @@
 import { h } from 'hastscript';
+import { matches } from 'hast-util-select';
 
 export function matchStructure(node, template) {
   if (node.tagName !== template.tagName) {
     return false;
   }
-  const childElements = node.children.filter((child) => child.type === 'element');
+  const childElements = node.children.filter((child) => child.type !== 'text' || child.value.trim() !== '');
   if (childElements.length !== template.children.length) {
     return false;
   }
@@ -59,15 +60,17 @@ export function insertComponent(obj, path, nodeName, component) {
 export function getHandler(node, parents, ctx) {
   const { handlers } = ctx;
   if (node.tagName === 'div') {
-    if (parents[parents.length - 1]?.tagName === 'main') {
-      return handlers.section;
-    }
-    if (getHandler(parents[parents.length - 1], [...parents.slice(0, -1)], ctx)?.name === 'section') {
-      const blockName = node?.properties?.className[0];
-      if (blockName === 'columns') {
-        return handlers.columns;
+    if (parents.length > 1) {
+      if (parents[parents.length - 1]?.tagName === 'main') {
+        return handlers.section;
       }
-      return handlers.block;
+      if (getHandler(parents[parents.length - 1], [...parents.slice(0, -1)], ctx)?.name === 'section') {
+        const blockName = node?.properties?.className[0];
+        if (blockName === 'columns') {
+          return handlers.columns;
+        }
+        return handlers.block;
+      }
     }
   }
   if (node.tagName === 'p') {
@@ -76,13 +79,14 @@ export function getHandler(node, parents, ctx) {
         || matchStructure(node, h('p', [h('em', [h('a')])]))) {
       return handlers.button;
     }
-    if (matchStructure(node, h('p', [h('picture', [h('img')])]))) {
+    if (matchStructure(node, h('p', [h('img')]))
+        || matchStructure(node, h('p', [h('picture', [h('img')])]))) {
       return handlers.image;
     }
 
     return handlers.text;
   }
-  if (node.tagName.match(/h[1-6]/)) {
+  if (matches('h1, h2, h3, h4, h5, h6', node)) {
     return handlers.title;
   }
   return undefined;

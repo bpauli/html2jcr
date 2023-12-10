@@ -34,6 +34,6 @@ export default function columns(node, ctx) {
     rt: 'core/franklin/components/columns/v1/columns',
     children,
     columns: children.length,
-    rows: children[0].elements.length,
+    rows: children[0]?.elements?.length || 0,
   };
 }

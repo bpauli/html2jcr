@@ -1,4 +1,5 @@
 import { h } from 'hastscript';
+import { select } from 'unist-util-select';
 import { matchStructure } from '../utils.js';
 
 function getType(node) {
@@ -12,13 +13,9 @@ function getType(node) {
 }
 
 function getLink(node) {
-  if (getType(node)) {
-    const { href } = node.children[0].children[0].properties;
-    const text = node.children[0].children[0].children[0].value;
-    return { href, text };
-  }
-  const { href } = node.children[0].properties;
-  const text = node.children[0].children[0].value;
+  const link = select('element[tagName=a]', node);
+  const { href } = link.properties;
+  const text = select('text', link).value;
   return { href, text };
 }
 

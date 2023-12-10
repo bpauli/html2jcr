@@ -22,7 +22,7 @@ export default async function hast2jcr(hast, opts = {}) {
   visitParents(hast, 'element', (node, parents) => {
     let path = '/jcr:root/jcr:content/root';
     const handler = getHandler(node, parents, ctx);
-    if (handler) {
+    if (handler && !pathMap.has(node)) {
       for (let i = parents.length - 1; i >= 0; i -= 1) {
         if (pathMap.has(parents[i])) {
           path = pathMap.get(parents[i]);
