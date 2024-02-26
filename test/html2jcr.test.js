@@ -27,4 +27,8 @@ describe('HTML to JCR converter', () => {
   it('converts a default content text with siblings', async () => {
     await test('text-siblings');
   });
+
+  it('converts a column block', async () => {
+    await test('columns');
+  });
 });

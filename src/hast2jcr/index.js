@@ -5,9 +5,7 @@ import { createComponentTree, getHandler, insertComponent } from './utils.js';
 import handlers from './handlers/index.js';
 
 export default async function hast2jcr(hast, opts = {}) {
-  const json = {
-    ...skeleton,
-  };
+  const json = JSON.parse(JSON.stringify(skeleton));
   const componentTree = createComponentTree();
 
   const pathMap = new Map();

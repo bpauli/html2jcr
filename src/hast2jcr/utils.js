@@ -45,7 +45,7 @@ export function insertComponent(obj, path, nodeName, component) {
               'jcr:primaryType': nt || 'nt:unstructured',
               ...rest,
             },
-            elements: children,
+            ...(children !== undefined ? { elements: children } : {}),
           },
         ];
         return;
