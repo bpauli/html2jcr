@@ -1,0 +1,14 @@
+[
+  {
+    "fields": [
+      {
+        "component": "text-input",
+        "label": "Text",
+        "name": "text",
+        "value": "",
+        "valueType": "string"
+      }
+    ],
+    "id": "simple-block"
+  }
+]

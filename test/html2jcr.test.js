@@ -6,6 +6,8 @@ import { html2jcr } from '../src/index.js';
 
 // eslint-disable-next-line no-underscore-dangle
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const componentModels = await fs.readFile(path.resolve(__dirname, 'fixtures', 'components-models.json'), 'utf-8');
+const componentDefinition = await fs.readFile(path.resolve(__dirname, 'fixtures', 'components-definition.json'), 'utf-8');
 
 async function test(spec) {
   const html = await fs.readFile(path.resolve(__dirname, 'fixtures', `${spec}.html`), 'utf-8');
@@ -15,7 +17,10 @@ async function test(spec) {
   } catch (e) {
     // ignore
   }
-  const actual = await html2jcr(html);
+  const actual = await html2jcr(html, {
+    componentModels: JSON.parse(componentModels),
+    componentDefinition: JSON.parse(componentDefinition),
+  });
   assert.strictEqual(actual, xmlExpected);
 }
 
@@ -30,5 +35,9 @@ describe('HTML to JCR converter', () => {
 
   it('converts a column block', async () => {
     await test('columns');
+  });
+
+  it('converts a generic block', async () => {
+    await test('block');
   });
 });
