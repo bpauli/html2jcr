@@ -1,16 +1,31 @@
 import { select } from 'hast-util-select';
 import { toString } from 'hast-util-to-string';
+import { toHtml } from 'hast-util-to-html';
 
-function findNameById(componentDefinition, id) {
+function findNameFilterById(componentDefinition, id) {
   let name = null;
+  let filterId = null;
   componentDefinition.groups.forEach((group) => {
     group.components.forEach((component) => {
       if (component.id === id) {
         name = component.plugins.xwalk.page.template.name;
+        filterId = component.plugins.xwalk.page.template.filter;
       }
     });
   });
-  return name;
+  return { name, filterId };
+}
+
+function findFilterById(componentFilters, id) {
+  let filter = null;
+  componentFilters.forEach((item) => {
+    if (item.id === id) {
+      if (item?.components?.length > 0) {
+        filter = item?.components[0];
+      }
+    }
+  });
+  return filter;
 }
 
 function findFieldsById(componentModels, id) {
@@ -24,40 +39,89 @@ function findFieldsById(componentModels, id) {
   return fields;
 }
 
+function encodeHtml(str) {
+  return str.replace(/</g, '&lt;')
+    .replace(/(\r\n|\n|\r)/gm, '')
+    .replace(/>[\s]*&lt;/g, '>&lt;');
+}
+
 function extractProperties(node, id, componentModels) {
+  const children = node.children.filter((child) => child.type === 'element');
   const properties = {};
   const fields = findFieldsById(componentModels, id);
+  if (!fields) {
+    return properties;
+  }
   fields.forEach((field, idx) => {
-    if (field?.component === 'text-input') {
-      properties[field.name] = toString(select(`div > div :nth-child(${idx + 1})`, node)).trim();
+    if (children.length <= idx) {
+      return;
+    }
+    if (field.name === 'classes') {
+      const classNames = node?.properties?.className;
+      if (classNames?.length > 1) {
+        properties[field.name] = `[${classNames.slice(1).join(', ')}]`;
+      }
+    } else if (field?.component === 'richtext') {
+      properties[field.name] = encodeHtml(toHtml(select('div', children[idx]).children).trim());
+    } else if (field?.component === 'image' || field?.component === 'reference') {
+      properties[field.name] = select('img', children[idx])?.properties?.src;
+    } else {
+      properties[field.name] = toString(select('div', children[idx])).trim();
     }
   });
+  properties.model = id;
   return properties;
 }
 
-function generateProperties(node, componentModels, componentDefinition) {
+function getBlockItems(node, filter, ctx) {
+  if (!filter) {
+    return undefined;
+  }
+  const elements = [];
+  const { pathMap, path } = ctx;
+  const rows = node.children.filter((child) => child.type === 'element' && child.tagName === 'div');
+  for (let i = 0; i < rows.length; i += 1) {
+    const itemPath = `${path}/item${i + 1}`;
+    pathMap.set(rows[i], itemPath);
+    const properties = extractProperties(rows[i], filter, ctx.componentsModels);
+    elements.push({
+      type: 'element',
+      name: `item${i + 1}`,
+      attributes: {
+        'jcr:primaryType': 'nt:unstructured',
+        ...properties,
+      },
+    });
+  }
+  return elements;
+}
+
+function generateProperties(node, ctx) {
   const id = node?.properties?.className[0] || undefined;
   if (!id) {
     console.warn('Block component not found');
     return {};
   }
-  const name = findNameById(componentDefinition, id);
-  const properties = extractProperties(node, id, componentModels);
-  const result = {
-    model: id,
+  const { componentsModels, componentsDefinition, componentFilters } = ctx;
+  const { name, filterId } = findNameFilterById(componentsDefinition, id);
+  const filter = findFilterById(componentFilters, filterId);
+  const attributes = extractProperties(node, id, componentsModels);
+  const blockItems = getBlockItems(node, filter, ctx);
+  const properties = {
     name,
-    ...properties,
+    filter,
+    ...attributes,
   };
 
-  return result;
+  return { properties, children: blockItems };
 }
 
-export default function block(node, opts) {
-  const { componentModels, componentDefinition } = opts;
-  const properties = generateProperties(node, componentModels, componentDefinition);
-  const attributes = {
+export default function block(node, ctx) {
+  const { properties, children } = generateProperties(node, ctx);
+  ctx.blockContext = ctx.path;
+  return {
     rt: 'core/franklin/components/block/v1/block',
+    children,
     ...properties,
   };
-  return attributes;
 }

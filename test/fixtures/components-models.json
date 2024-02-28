@@ -1,14 +1,59 @@
 [
   {
+    "id": "simple-block",
     "fields": [
       {
-        "component": "text-input",
+        "component": "text",
         "label": "Text",
         "name": "text",
         "value": "",
         "valueType": "string"
       }
-    ],
-    "id": "simple-block"
+    ]    
+  },
+  {
+    "id": "cards",
+    "fields": [
+      {
+        "component": "select",
+        "label": "Options",
+        "name": "classes",
+        "value": "",
+        "valueType": "string",
+        "options": [
+          {
+            "name": "default",
+            "value": ""
+          },
+          {
+            "name": "Advanced",
+            "value": "advanced"
+          },
+          {
+            "name": "Simple",
+            "value": "simple"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "card",
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "richtext",
+        "name": "text",
+        "value": "",
+        "label": "Text",
+        "valueType": "string"
+      }
+    ]
   }
 ]

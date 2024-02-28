@@ -57,39 +57,86 @@ export function insertComponent(obj, path, nodeName, component) {
   insert(obj, '');
 }
 
+function isSection(node, parents) {
+  return node.tagName === 'div' && parents.length > 1 && parents[parents.length - 1].tagName === 'main';
+}
+
+function isColumns(node, parents) {
+  return node.tagName === 'div'
+    && parents.length > 2
+    && parents[parents.length - 2].tagName === 'main'
+    && node.properties.className.length > 0
+    && node.properties.className[0] === 'columns';
+}
+
+function isBlock(node, parents) {
+  return node.tagName === 'div'
+    && parents.length > 2
+    && parents[parents.length - 2].tagName === 'main'
+    && node.properties.className.length > 0
+    && node.properties.className[0] !== 'columns';
+}
+
+function isButton(node, parents) {
+  for (let i = parents.length - 1; i >= 0; i -= 1) {
+    if (isBlock(parents[i], parents.slice(0, i))) {
+      return false;
+    }
+  }
+  return node.tagName === 'p'
+    && (matchStructure(node, h('p', [h('strong', [h('a')])]))
+        || matchStructure(node, h('p', [h('a')]))
+        || matchStructure(node, h('p', [h('em', [h('a')])])));
+}
+
+function isImage(node, parents) {
+  for (let i = parents.length - 1; i >= 0; i -= 1) {
+    if (isBlock(parents[i], parents.slice(0, i))) {
+      return false;
+    }
+  }
+  return node.tagName === 'p'
+    && (matchStructure(node, h('p', [h('img')]))
+        || matchStructure(node, h('p', [h('picture', [h('img')])])));
+}
+
+function isText(node, parents) {
+  for (let i = parents.length - 1; i >= 0; i -= 1) {
+    if (isBlock(parents[i], parents.slice(0, i))) {
+      return false;
+    }
+  }
+  return node.tagName === 'p';
+}
+
+function isHeadline(node, parents) {
+  for (let i = parents.length - 1; i >= 0; i -= 1) {
+    if (isBlock(parents[i], parents.slice(0, i))) {
+      return false;
+    }
+  }
+  return matches('h1, h2, h3, h4, h5, h6', node);
+}
+
 export function getHandler(node, parents, ctx) {
   const { handlers } = ctx;
-  if (node.tagName === 'div') {
-    if (parents.length > 1) {
-      if (parents[parents.length - 1]?.tagName === 'main') {
-        return handlers.section;
-      }
-      if (getHandler(parents[parents.length - 1], [...parents.slice(0, -1)], ctx)?.name === 'section') {
-        const blockName = node?.properties?.className[0];
-        if (blockName === 'columns') {
-          return handlers.columns;
-        }
-        return handlers.block;
-      }
-    }
+  let handler = null;
+  if (isSection(node, parents)) {
+    handler = handlers.section;
+  } else if (isColumns(node, parents)) {
+    handler = handlers.columns;
+  } else if (isBlock(node, parents)) {
+    handler = handlers.block;
+  } else if (isButton(node, parents)) {
+    handler = handlers.button;
+  } else if (isImage(node, parents)) {
+    handler = handlers.image;
+  } else if (isText(node, parents)) {
+    handler = handlers.text;
+  } else if (isHeadline(node, parents)) {
+    handler = handlers.title;
   }
-  if (node.tagName === 'p') {
-    if (matchStructure(node, h('p', [h('strong', [h('a')])]))
-        || matchStructure(node, h('p', [h('a')]))
-        || matchStructure(node, h('p', [h('em', [h('a')])]))) {
-      return handlers.button;
-    }
-    if (matchStructure(node, h('p', [h('img')]))
-        || matchStructure(node, h('p', [h('picture', [h('img')])]))) {
-      return handlers.image;
-    }
-
-    return handlers.text;
-  }
-  if (matches('h1, h2, h3, h4, h5, h6', node)) {
-    return handlers.title;
-  }
-  return undefined;
+  return handler;
 }
 
 export function createComponentTree() {
