@@ -1,6 +1,6 @@
 import { h } from 'hastscript';
 import assert from 'assert';
-import { insertComponent, createComponentTree, matchStructure } from '../src/hast2jcr/utils.js';
+import { insertComponent, createComponentTree, matchStructure, findMatchingPath } from '../src/hast2jcr/utils.js';
 
 describe('Utils', () => {
   it('Insert component at a path', async () => {
@@ -32,7 +32,8 @@ describe('Utils', () => {
     const component = {
       rt: '/apps/image',
     };
-    insertComponent(obj, path, nodeName, component);
+    const parentComponent = findMatchingPath(obj, path);
+    insertComponent(parentComponent, nodeName, component);
     const expected = {
       type: 'element',
       name: 'root',

@@ -1,3 +1,5 @@
+const resourceType = 'core/franklin/components/columns/v1/columns';
+
 function getRows(node, ctx) {
   const elements = [];
   const { pathMap, path } = ctx;
@@ -28,12 +30,21 @@ function getRows(node, ctx) {
   return elements;
 }
 
-export default function columns(node, ctx) {
-  const children = getRows(node, ctx);
-  return {
-    rt: 'core/franklin/components/columns/v1/columns',
-    children,
-    columns: children.length,
-    rows: children[0]?.elements?.length || 0,
-  };
-}
+const columns = {
+  use: (node, parents) => node.tagName === 'div'
+      && parents.length > 2
+      && parents[parents.length - 2].tagName === 'main'
+      && node.properties.className.length > 0
+      && node.properties.className[0] === 'columns',
+  getAttributes: (node, ctx) => {
+    const children = getRows(node, ctx);
+    return {
+      rt: resourceType,
+      children,
+      columns: children.length,
+      rows: children[0]?.elements?.length || 0,
+    };
+  },
+};
+
+export default columns;

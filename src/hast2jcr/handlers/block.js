@@ -103,6 +103,10 @@ function generateProperties(node, ctx) {
     return {};
   }
   const { componentsModels, componentsDefinition, componentFilters } = ctx;
+  if (!componentsModels || !componentsDefinition || !componentFilters) {
+    console.warn('Block component not found');
+    return {};
+  }
   const { name, filterId } = findNameFilterById(componentsDefinition, id);
   const filter = findFilterById(componentFilters, filterId);
   const attributes = extractProperties(node, id, componentsModels);
@@ -116,7 +120,7 @@ function generateProperties(node, ctx) {
   return { properties, children: blockItems };
 }
 
-export default function block(node, ctx) {
+function getAttributes(node, ctx) {
   const { properties, children } = generateProperties(node, ctx);
   ctx.blockContext = ctx.path;
   return {
@@ -125,3 +129,18 @@ export default function block(node, ctx) {
     ...properties,
   };
 }
+
+function use(node, parents) {
+  return node.tagName === 'div'
+    && parents.length > 2
+    && parents[parents.length - 2].tagName === 'main'
+    && node.properties.className.length > 0
+    && node.properties.className[0] !== 'columns';
+}
+
+const block = {
+  use,
+  getAttributes,
+};
+
+export default block;

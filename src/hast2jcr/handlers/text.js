@@ -1,53 +1,53 @@
 import { toHtml } from 'hast-util-to-html';
-import { getHandler } from '../utils.js';
+import { h } from 'hastscript';
+import {
+  hasSingleChildElement, encodeHTMLEntities, insertComponent, matchStructure,
+} from '../utils.js';
 
-function encodeHTMLEntities(str) {
-  return str.replace(/</g, '&lt;');
+const resourceType = 'core/franklin/components/text/v1/text';
+
+function isCollapsible(element) {
+  const { attributes = {} } = element;
+  return attributes['sling:resourceType'] === resourceType;
 }
 
-function getText(nodes) {
-  const html = nodes.map((node) => toHtml(node)).join('');
-  return encodeHTMLEntities(html).trim();
+function getRichText(node) {
+  const richText = toHtml(node);
+  return encodeHTMLEntities(richText);
 }
 
-function getParentNode(pathMap, path) {
-  const parentPath = path.substring(0, path.lastIndexOf('/'));
-  /* eslint-disable-next-line no-restricted-syntax */
-  for (const [key, value] of pathMap.entries()) {
-    if (value === parentPath) {
-      return key;
-    }
-  }
-  return undefined;
-}
-
-function getFollowingTextNodes(node, crx) {
-  const { pathMap, path } = crx;
-  const followingTextNodes = [];
-  const parentNode = getParentNode(pathMap, path);
-  if (parentNode) {
-    const index = parentNode.children.indexOf(node);
-    const followingNodes = parentNode.children.slice(index + 1);
-    /* eslint-disable-next-line no-restricted-syntax */
-    for (const followingNode of followingNodes) {
-      const handler = getHandler(followingNode, [], crx);
-      if (handler) {
-        if (handler.name === 'text') {
-          followingTextNodes.push(followingNode);
-          pathMap.set(followingNode, path);
-        } else {
-          break;
+const text = {
+  use: (node) => {
+    // Ignore paragraphs that only contain a single button or single image
+    if (node.tagName === 'p') {
+      if (hasSingleChildElement(node)) {
+        if (matchStructure(node, h('p', [h('strong', [h('a')])]))
+          || matchStructure(node, h('p', [h('a')]))
+          || matchStructure(node, h('p', [h('em', [h('a')])]))) {
+          return false;
+        }
+        if (matchStructure(node, h('p', [h('picture', [h('img')])]))
+          || matchStructure(node, h('p', [h('img')]))) {
+          return false;
         }
       }
+      return true;
     }
-  }
-  return followingTextNodes;
-}
+    return false;
+  },
+  getAttributes: (node) => ({
+    rt: resourceType,
+    text: getRichText(node),
+  }),
+  insert: (parent, nodeName, component) => {
+    const elements = parent.elements || [];
+    const previousSibling = elements.at(-1);
+    if (previousSibling && isCollapsible(previousSibling)) {
+      previousSibling.attributes.text += component.text;
+    } else {
+      insertComponent(parent, nodeName, component);
+    }
+  },
+};
 
-export default function text(node, crx) {
-  const followingTextNodes = getFollowingTextNodes(node, crx);
-  return {
-    rt: 'core/franklin/components/text/v1/text',
-    text: getText([node, ...followingTextNodes]),
-  };
-}
+export default text;

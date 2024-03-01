@@ -32,9 +32,15 @@ async function run(filePath) {
     const fileXml = path.resolve(targetPath, '.content.xml');
 
     console.log(`converting ${file} -> ${path.relative(process.cwd(), fileXml)}`);
+    const opts = {
+      componentsModels: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-models.json'), 'utf-8')),
+      componentsDefinition: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-definition.json'), 'utf-8')),
+      componentFilters: JSON.parse(await readFile(path.resolve(process.cwd(), 'component-filters.json'), 'utf-8')),
+    };
+    debugger;
 
     const html = await readFile(file);
-    const buffer = await html2jcr(html);
+    const buffer = await html2jcr(html, opts);
     await writeFile(fileXml, buffer);
   }
 }
