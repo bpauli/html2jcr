@@ -4,8 +4,8 @@
     "fields": [
       {
         "component": "text",
-        "label": "Text",
         "name": "text",
+        "label": "Text",
         "value": "",
         "valueType": "string"
       }

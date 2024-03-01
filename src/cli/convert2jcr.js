@@ -37,7 +37,6 @@ async function run(filePath) {
       componentsDefinition: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-definition.json'), 'utf-8')),
       componentFilters: JSON.parse(await readFile(path.resolve(process.cwd(), 'component-filters.json'), 'utf-8')),
     };
-    debugger;
 
     const html = await readFile(file);
     const buffer = await html2jcr(html, opts);

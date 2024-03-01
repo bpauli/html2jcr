@@ -1,4 +1,4 @@
-import { select } from 'hast-util-select';
+import { select, selectAll } from 'hast-util-select';
 import { toString } from 'hast-util-to-string';
 import { toHtml } from 'hast-util-to-html';
 
@@ -45,7 +45,7 @@ function encodeHtml(str) {
     .replace(/>[\s]*&lt;/g, '>&lt;');
 }
 
-function extractProperties(node, id, componentModels) {
+function extractProperties(node, id, componentModels, mode = 'container') {
   const children = node.children.filter((child) => child.type === 'element');
   const properties = {};
   const fields = findFieldsById(componentModels, id);
@@ -62,7 +62,8 @@ function extractProperties(node, id, componentModels) {
         properties[field.name] = `[${classNames.slice(1).join(', ')}]`;
       }
     } else if (field?.component === 'richtext') {
-      properties[field.name] = encodeHtml(toHtml(select('div', children[idx]).children).trim());
+      const selector = mode === 'container' ? 'div > *' : 'div > div > * ';
+      properties[field.name] = encodeHtml(toHtml(selectAll(selector, children[idx])).trim());
     } else if (field?.component === 'image' || field?.component === 'reference') {
       properties[field.name] = select('img', children[idx])?.properties?.src;
     } else {
@@ -96,7 +97,7 @@ function getBlockItems(node, filter, ctx) {
   return elements;
 }
 
-function generateProperties(node, ctx) {
+function generateProperties(node, ctx, mode) {
   const id = node?.properties?.className[0] || undefined;
   if (!id) {
     console.warn('Block component not found');
@@ -109,7 +110,7 @@ function generateProperties(node, ctx) {
   }
   const { name, filterId } = findNameFilterById(componentsDefinition, id);
   const filter = findFilterById(componentFilters, filterId);
-  const attributes = extractProperties(node, id, componentsModels);
+  const attributes = extractProperties(node, id, componentsModels, 'simple');
   const blockItems = getBlockItems(node, filter, ctx);
   const properties = {
     name,
