@@ -50,4 +50,8 @@ describe('HTML to JCR converter', () => {
   it('converts a generic block', async () => {
     await test('block');
   });
+
+  it('converts a section', async () => {
+    await test('section');
+  });
 });

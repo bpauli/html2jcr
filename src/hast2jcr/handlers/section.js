@@ -30,6 +30,8 @@ const section = {
       if (parents[parents.length - 1]?.tagName === 'main') {
         return true;
       }
+    } else if (node.tagName === 'hr') {
+      return true;
     }
     return false;
   },

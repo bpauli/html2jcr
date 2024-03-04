@@ -6,12 +6,20 @@ import {
 } from './utils.js';
 import handlers from './handlers/index.js';
 
-function buildPath(parents, { pathMap = new Map() }) {
-  let path = '/jcr:root/jcr:content/root';
-  for (let i = parents.length - 1; i >= 0; i -= 1) {
-    if (pathMap.has(parents[i])) {
-      path = pathMap.get(parents[i]);
-      break;
+function buildPath(parents, { pathMap, handler }) {
+  const path = '/jcr:root/jcr:content/root';
+  if (handler.name !== 'section') {
+    for (let i = parents.length - 1; i >= 0; i -= 1) {
+      const currentNode = parents[i];
+      if (pathMap.has(currentNode)) {
+        for (let j = 0; j < currentNode.children.length; j += 1) {
+          const childNode = currentNode.children[j];
+          if (childNode.tagName === 'hr' && pathMap.has(childNode)) {
+            return pathMap.get(childNode);
+          }
+        }
+        return pathMap.get(currentNode);
+      }
     }
   }
   return path;
@@ -38,10 +46,12 @@ export default async function hast2jcr(hast, opts = {}) {
   visitParents(hast, 'element', (node, parents) => {
     const handler = getHandler(node, parents, ctx);
     if (handler) {
-      const path = buildPath(parents, ctx);
+      const path = buildPath(parents, {
+        handler,
+        ...ctx,
+      });
       const nodeName = getNodeName(handler.name, path, ctx);
       const { getAttributes, insert: insertFunc } = handler;
-
       const attributes = getAttributes(node, {
         path: `${path}/${nodeName}`,
         ...ctx,
@@ -50,7 +60,7 @@ export default async function hast2jcr(hast, opts = {}) {
       const parentComponent = findMatchingPath(jcrRoot, path);
 
       if (insertFunc) {
-        insertFunc(parentComponent, nodeName, attributes);
+        insertFunc(parentComponent, nodeName, attributes, ctx);
       } else {
         insertComponent(parentComponent, nodeName, attributes);
       }
@@ -60,6 +70,7 @@ export default async function hast2jcr(hast, opts = {}) {
 
       pathMap.set(node, `${path}/${nodeName}`);
     }
+    return 'continue';
   });
 
   const options = {
