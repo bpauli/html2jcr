@@ -16,9 +16,9 @@ function findNameFilterById(componentDefinition, id) {
   return { name, filterId };
 }
 
-function findFilterById(componentFilters, id) {
+function findFilterById(filters, id) {
   let filter = null;
-  componentFilters.forEach((item) => {
+  filters.forEach((item) => {
     if (item.id === id) {
       if (item?.components?.length > 0) {
         filter = item?.components[0];
@@ -84,7 +84,7 @@ function getBlockItems(node, filter, ctx) {
   for (let i = 0; i < rows.length; i += 1) {
     const itemPath = `${path}/item${i + 1}`;
     pathMap.set(rows[i], itemPath);
-    const properties = extractProperties(rows[i], filter, ctx.componentsModels);
+    const properties = extractProperties(rows[i], filter, ctx.componentModels);
     elements.push({
       type: 'element',
       name: `item${i + 1}`,
@@ -97,20 +97,20 @@ function getBlockItems(node, filter, ctx) {
   return elements;
 }
 
-function generateProperties(node, ctx, mode) {
+function generateProperties(node, ctx) {
   const id = node?.properties?.className[0] || undefined;
   if (!id) {
     console.warn('Block component not found');
     return {};
   }
-  const { componentsModels, componentsDefinition, componentFilters } = ctx;
-  if (!componentsModels || !componentsDefinition || !componentFilters) {
+  const { componentModels, componentDefinition, filters } = ctx;
+  if (!componentModels || !componentDefinition || !filters) {
     console.warn('Block component not found');
     return {};
   }
-  const { name, filterId } = findNameFilterById(componentsDefinition, id);
-  const filter = findFilterById(componentFilters, filterId);
-  const attributes = extractProperties(node, id, componentsModels, 'simple');
+  const { name, filterId } = findNameFilterById(componentDefinition, id);
+  const filter = findFilterById(filters, filterId);
+  const attributes = extractProperties(node, id, componentModels, 'simple');
   const blockItems = getBlockItems(node, filter, ctx);
   const properties = {
     name,

@@ -33,9 +33,9 @@ async function run(filePath) {
 
     console.log(`converting ${file} -> ${path.relative(process.cwd(), fileXml)}`);
     const opts = {
-      componentsModels: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-models.json'), 'utf-8')),
-      componentsDefinition: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-definition.json'), 'utf-8')),
-      componentFilters: JSON.parse(await readFile(path.resolve(process.cwd(), 'component-filters.json'), 'utf-8')),
+      componentModels: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-models.json'), 'utf-8')),
+      componentDefinition: JSON.parse(await readFile(path.resolve(process.cwd(), 'components-definition.json'), 'utf-8')),
+      filters: JSON.parse(await readFile(path.resolve(process.cwd(), 'component-filters.json'), 'utf-8')),
     };
 
     const html = await readFile(file);

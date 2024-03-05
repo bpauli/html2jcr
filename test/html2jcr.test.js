@@ -19,9 +19,9 @@ async function test(spec) {
     // ignore
   }
   const actual = await html2jcr(html, {
-    componentsModels: JSON.parse(componentsModels),
-    componentsDefinition: JSON.parse(componentsDefinition),
-    componentFilters: JSON.parse(componentFilters),
+    componentModels: JSON.parse(componentsModels),
+    componentDefinition: JSON.parse(componentsDefinition),
+    filters: JSON.parse(componentFilters),
   });
   assert.strictEqual(actual, xmlExpected);
 }
