@@ -54,4 +54,8 @@ describe('HTML to JCR converter', () => {
   it('converts a section', async () => {
     await test('section');
   });
+
+  it('converts buttons', async () => {
+    await test('button');
+  });
 });

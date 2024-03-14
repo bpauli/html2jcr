@@ -13,19 +13,26 @@ function getType(node) {
   return undefined;
 }
 
+function removeExtension(href) {
+  if (href.startsWith('/')) {
+    return href.replace(/\.[^/.]+$/, '');
+  }
+  return href;
+}
+
 function getLink(node) {
   const [buttonNode] = node.children;
   if (!buttonNode || !buttonNode.properties) {
-    return { href: '', text: '' };
+    return { href: '', text: '', title: '' };
   }
   if (getType(node)) {
-    const { href } = buttonNode.children[0].properties;
+    const { href, title } = buttonNode.children[0].properties;
     const text = buttonNode.children[0].children[0].value;
-    return { href, text };
+    return { href: removeExtension(href), text, title };
   }
-  const { href } = buttonNode.properties;
+  const { href, title } = buttonNode.properties;
   const text = buttonNode.children[0].value;
-  return { href, text };
+  return { href: removeExtension(href), text, title };
 }
 
 const button = {
@@ -43,12 +50,13 @@ const button = {
   },
   getAttributes: (node) => {
     const type = getType(node);
-    const { href, text } = getLink(node);
+    const { href, text, title } = getLink(node);
     return {
       rt: resourceType,
       type,
       href,
       text,
+      title,
     };
   },
 };
