@@ -14,8 +14,8 @@ function getType(node) {
 }
 
 function removeExtension(href) {
-  if (href.startsWith('/')) {
-    return href.replace(/\.[^/.]+$/, '');
+  if (!href.startsWith('http')) {
+    return href.replace(/\.html$/, '');
   }
   return href;
 }
