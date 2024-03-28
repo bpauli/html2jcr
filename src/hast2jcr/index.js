@@ -12,7 +12,7 @@ function buildPath(parents, { pathMap, handler }) {
     for (let i = parents.length - 1; i >= 0; i -= 1) {
       const currentNode = parents[i];
       if (pathMap.has(currentNode)) {
-        for (let j = 0; j < currentNode.children.length; j += 1) {
+        for (let j = currentNode.children.length - 1; j >= 0; j -= 1) {
           const childNode = currentNode.children[j];
           if (childNode.tagName === 'hr' && pathMap.has(childNode)) {
             return pathMap.get(childNode);
@@ -54,6 +54,7 @@ export default async function hast2jcr(hast, opts = {}) {
       const { getAttributes, insert: insertFunc } = handler;
       const attributes = getAttributes(node, {
         path: `${path}/${nodeName}`,
+        parents,
         ...ctx,
       });
 

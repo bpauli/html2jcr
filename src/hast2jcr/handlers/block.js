@@ -123,7 +123,6 @@ function generateProperties(node, ctx) {
 
 function getAttributes(node, ctx) {
   const { properties, children } = generateProperties(node, ctx);
-  ctx.blockContext = ctx.path;
   return {
     rt: 'core/franklin/components/block/v1/block',
     children,
@@ -136,7 +135,8 @@ function use(node, parents) {
     && parents.length > 2
     && parents[parents.length - 2].tagName === 'main'
     && node.properties.className.length > 0
-    && node.properties.className[0] !== 'columns';
+    && node.properties.className[0] !== 'columns'
+    && node.properties.className[0] !== 'section-metadata';
 }
 
 const block = {
