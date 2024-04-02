@@ -3,7 +3,7 @@ import { matchStructure, hasSingleChildElement } from '../utils.js';
 
 const resourceType = 'core/franklin/components/button/v1/button';
 
-function getType(node) {
+export function getType(node) {
   if (matchStructure(node, h('p', [h('strong', [h('a')])]))) {
     return 'primary';
   }

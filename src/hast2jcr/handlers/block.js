@@ -1,6 +1,7 @@
 import { select, selectAll } from 'hast-util-select';
 import { toString } from 'hast-util-to-string';
 import { toHtml } from 'hast-util-to-html';
+import button, { getType } from './button.js';
 
 function findNameFilterById(componentDefinition, id) {
   let name = null;
@@ -45,6 +46,37 @@ function encodeHtml(str) {
     .replace(/>[\s]*&lt;/g, '>&lt;');
 }
 
+function collapseField(id, fields, properties, node) {
+  const suffixes = ['Alt', 'Type', 'MimeType', 'Text', 'Title'];
+  suffixes.forEach((suffix) => {
+    const field = fields.find((f) => f.name === `${id}${suffix}`);
+    if (field) {
+      if (suffix === 'Type') {
+        if (node?.tagName.startsWith('h')) {
+          properties[field.name] = node?.tagName?.toLowerCase();
+        } else if (button.use(node)) {
+          properties[field.name] = getType(node);
+        }
+      } else if (button.use(node)) {
+        if (suffix === 'Text') {
+          properties[field.name] = select('a', node)?.children?.[0]?.value;
+        } else {
+          properties[field.name] = select('a', node)?.properties?.[suffix.toLowerCase()];
+        }
+      } else {
+        properties[field.name] = node?.properties?.[suffix.toLowerCase()];
+      }
+      fields.filter((value, index, array) => {
+        if (value.name === `${id}${suffix}`) {
+          array.splice(index, 1);
+          return true;
+        }
+        return false;
+      });
+    }
+  });
+}
+
 function extractProperties(node, id, componentModels, mode = 'container') {
   const children = node.children.filter((child) => child.type === 'element');
   const properties = {};
@@ -65,9 +97,22 @@ function extractProperties(node, id, componentModels, mode = 'container') {
       const selector = mode === 'container' ? 'div > *' : 'div > div > * ';
       properties[field.name] = encodeHtml(toHtml(selectAll(selector, children[idx])).trim());
     } else if (field?.component === 'image' || field?.component === 'reference') {
-      properties[field.name] = select('img', children[idx])?.properties?.src;
+      const imageNode = select('img', children[idx]);
+      if (imageNode) {
+        properties[field.name] = select('img', children[idx])?.properties?.src;
+        collapseField(field.name, fields, properties, imageNode);
+      } else if (button.use(select('p', children[idx]))) {
+        properties[field.name] = select('a', children[idx])?.properties?.href;
+        collapseField(field.name, fields, properties, select('p', children[idx]));
+      }
     } else {
-      properties[field.name] = toString(select('div', children[idx])).trim();
+      const headlineNode = select('h1, h2, h3, h4, h5, h6', children[idx]);
+      if (headlineNode) {
+        properties[field.name] = toString(select(headlineNode.tagName, children[idx])).trim();
+        collapseField(field.name, fields, properties, headlineNode);
+      } else {
+        properties[field.name] = toString(select('div', children[idx])).trim();
+      }
     }
   });
   properties.model = id;
@@ -134,9 +179,9 @@ function use(node, parents) {
   return node.tagName === 'div'
     && parents.length > 2
     && parents[parents.length - 2].tagName === 'main'
-    && node.properties.className.length > 0
-    && node.properties.className[0] !== 'columns'
-    && node.properties.className[0] !== 'section-metadata';
+    && node.properties?.className?.length > 0
+    && node.properties?.className[0] !== 'columns'
+    && node.properties?.className[0] !== 'section-metadata';
 }
 
 const block = {

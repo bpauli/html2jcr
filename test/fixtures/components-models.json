@@ -55,5 +55,75 @@
         "valueType": "string"
       }
     ]
+  },
+  {
+    "id": "teaser",
+    "fields": [
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Alt",
+        "name": "imageAlt",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Title",
+        "name": "title",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "label": "Text",
+        "name": "titleType",
+        "valueType": "string",
+        "options" : [
+          { "name": "H1", "value": "h1" },
+          { "name": "H2", "value": "h2" },
+          { "name": "H3", "value": "h3" },
+          { "name": "H4", "value": "h4" },
+          { "name": "H5", "value": "h5" },
+          { "name": "H6", "value": "h6" }
+        ]
+      },
+      {
+        "component": "reference",
+        "label": "Link",
+        "name": "link",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "label": "Link Type",
+        "name": "linkType",
+        "valueType": "string",
+        "options" : [
+          { "name": "Default", "value": "default" },
+          { "name": "Primary", "value": "primary" },
+          { "name": "Secondary", "value": "secondary" }          
+        ]
+      },
+      {
+        "component": "text",
+        "label": "Link Text",
+        "name": "linkText",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Text",
+        "name": "linkTitle",
+        "value": "",
+        "valueType": "string"
+      }
+    ]
   }
 ]
