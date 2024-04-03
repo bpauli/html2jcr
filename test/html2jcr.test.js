@@ -51,8 +51,8 @@ describe('HTML to JCR converter', () => {
     await test('block');
   });
 
-  it('converts a block with element grouping', async () => {
-    await test('block-element-grouping');
+  it('converts a block with field collapsing', async () => {
+    await test('block-field-collapsing');
   });
 
   it('converts a section', async () => {
