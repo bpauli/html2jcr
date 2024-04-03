@@ -1,5 +1,5 @@
 import { h } from 'hastscript';
-import { matchStructure, hasSingleChildElement } from '../utils.js';
+import { matchStructure, hasSingleChildElement, encodeHTMLEntities } from '../utils.js';
 
 const resourceType = 'core/franklin/components/button/v1/button';
 
@@ -28,11 +28,11 @@ function getLink(node) {
   if (getType(node)) {
     const { href, title } = buttonNode.children[0].properties;
     const text = buttonNode.children[0].children[0].value;
-    return { href: removeExtension(href), text, title };
+    return { href: encodeHTMLEntities(removeExtension(href)), text, title };
   }
   const { href, title } = buttonNode.properties;
   const text = buttonNode.children[0].value;
-  return { href: removeExtension(href), text, title };
+  return { href: encodeHTMLEntities(removeExtension(href)), text, title };
 }
 
 const button = {

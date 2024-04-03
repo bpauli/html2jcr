@@ -1,5 +1,5 @@
 export function encodeHTMLEntities(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  return str.replace(/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;)/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 }
 
 export function matchStructure(node, template) {
