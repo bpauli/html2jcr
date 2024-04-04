@@ -126,7 +126,8 @@ function getBlockItems(node, filter, ctx) {
     return undefined;
   }
   const elements = [];
-  const { pathMap, path } = ctx;
+  const { pathMap, path, componentDefinition } = ctx;
+  const { name } = findNameFilterById(componentDefinition, filter);
   const rows = node.children.filter((child) => child.type === 'element' && child.tagName === 'div');
   for (let i = 0; i < rows.length; i += 1) {
     const itemPath = `${path}/item${i + 1}`;
@@ -134,9 +135,10 @@ function getBlockItems(node, filter, ctx) {
     const properties = extractProperties(rows[i], filter, ctx.componentModels);
     elements.push({
       type: 'element',
-      name: `item${i + 1}`,
+      name: i > 0 ? `item_${i - 1}` : 'item',
       attributes: {
         'jcr:primaryType': 'nt:unstructured',
+        name,
         ...properties,
       },
     });
