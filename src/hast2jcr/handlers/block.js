@@ -2,6 +2,7 @@ import { select, selectAll } from 'hast-util-select';
 import { toString } from 'hast-util-to-string';
 import { toHtml } from 'hast-util-to-html';
 import button, { getType } from './button.js';
+import { encodeHTMLEntities } from '../utils.js';
 
 function findNameFilterById(componentDefinition, id) {
   let name = null;
@@ -41,7 +42,8 @@ function findFieldsById(componentModels, id) {
 }
 
 function encodeHtml(str) {
-  return str.replace(/</g, '&lt;')
+  return str.replace(/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;)/g, '&amp;')
+    .replace(/</g, '&lt;')
     .replace(/(\r\n|\n|\r)/gm, '')
     .replace(/>[\s]*&lt;/g, '>&lt;');
 }
@@ -59,12 +61,12 @@ function collapseField(id, fields, properties, node) {
         }
       } else if (button.use(node)) {
         if (suffix === 'Text') {
-          properties[field.name] = select('a', node)?.children?.[0]?.value;
+          properties[field.name] = encodeHTMLEntities(select('a', node)?.children?.[0]?.value);
         } else {
-          properties[field.name] = select('a', node)?.properties?.[suffix.toLowerCase()];
+          properties[field.name] = encodeHTMLEntities(select('a', node)?.properties?.[suffix.toLowerCase()]);
         }
       } else {
-        properties[field.name] = node?.properties?.[suffix.toLowerCase()];
+        properties[field.name] = encodeHTMLEntities(node?.properties?.[suffix.toLowerCase()]);
       }
       fields.filter((value, index, array) => {
         if (value.name === `${id}${suffix}`) {
@@ -111,7 +113,7 @@ function extractProperties(node, id, componentModels, mode = 'container') {
         properties[field.name] = toString(select(headlineNode.tagName, children[idx])).trim();
         collapseField(field.name, fields, properties, headlineNode);
       } else {
-        properties[field.name] = toString(select('div', children[idx])).trim();
+        properties[field.name] = encodeHTMLEntities(toString(select('div', children[idx])).trim());
       }
     }
   });
