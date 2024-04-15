@@ -40,7 +40,7 @@ function getMetaData(node, parents) {
 const section = {
   use: (node, parents) => {
     if (node.tagName === 'div') {
-      if (parents[parents.length - 1]?.tagName === 'main') {
+      if (parents && parents[parents.length - 1]?.tagName === 'main') {
         return true;
       }
     } else if (node.tagName === 'hr') {

@@ -2,7 +2,7 @@ import { select, selectAll } from 'hast-util-select';
 import { toString } from 'hast-util-to-string';
 import { toHtml } from 'hast-util-to-html';
 import button, { getType } from './button.js';
-import { encodeHTMLEntities } from '../utils.js';
+import { encodeHTMLEntities, getHandler } from '../utils.js';
 
 function findNameFilterById(componentDefinition, id) {
   let name = null;
@@ -79,18 +79,107 @@ function collapseField(id, fields, properties, node) {
   });
 }
 
-function extractProperties(node, id, componentModels, mode = 'container') {
+function getMainFields(fields) {
+  const suffixes = ['Alt', 'Type', 'MimeType', 'Text', 'Title'];
+  const itemNames = fields.map((item) => item.name);
+
+  return fields.filter((item) => {
+    const itemNameWithoutSuffix = suffixes.reduce((name, suffix) => {
+      if (name.endsWith(suffix)) {
+        return name.slice(0, -suffix.length);
+      }
+      return name;
+    }, item.name);
+
+    return !(itemNames.includes(itemNameWithoutSuffix) && itemNameWithoutSuffix !== item.name);
+  });
+}
+
+function createComponentGroups(fields) {
+  const components = [];
+  fields.forEach((obj) => {
+    if (obj.name.includes('_')) {
+      const groupName = obj.name.split('_')[0];
+      let groupObj = components.find((item) => item.name === groupName);
+      if (!groupObj) {
+        groupObj = {
+          component: 'group',
+          name: groupName,
+          fields: [],
+        };
+        components.push(groupObj);
+      }
+      groupObj.fields.push(obj);
+    } else {
+      components.push(obj);
+    }
+  });
+  return components;
+}
+
+function isHeadline(handler, field, fields) {
+  return handler.name === 'title' && field.component === 'text' && fields.find((f) => f.name === `${field.name}Type`);
+}
+
+function findFieldByType(handler, groupFields, fields, idx) {
+  let groupField = null;
+  let gIdx = idx;
+  for (let index = gIdx; index < groupFields.length; index += 1) {
+    const field = groupFields[index];
+    if (field.component === handler.name
+      || isHeadline(handler, field, fields)
+      || (field.component === 'richtext' && handler.name === 'text')
+      || (field.component === 'reference' && handler.name === 'button')) {
+      groupField = field;
+      if (field.component === 'richtext' && handler.name === 'text') {
+        gIdx = index;
+      } else {
+        gIdx = index + 1;
+      }
+
+      break;
+    }
+  }
+  return { gIdx, groupField };
+}
+
+function extractProperties(node, id, ctx, mode = 'container') {
   const children = node.children.filter((child) => child.type === 'element');
   const properties = {};
-  const fields = findFieldsById(componentModels, id);
+  const { componentModels } = ctx;
+  const fields = createComponentGroups(findFieldsById(componentModels, id));
   if (!fields) {
     return properties;
   }
-  fields.forEach((field, idx) => {
+  const mainFields = getMainFields(fields);
+  mainFields.forEach((field, idx) => {
     if (children.length <= idx) {
       return;
     }
-    if (field.name === 'classes') {
+    if (field.component === 'group') {
+      const groupFields = getMainFields(field.fields);
+      const containerNode = select('div > div', children[idx]);
+      const containerChildren = containerNode.children.filter((child) => child.type === 'element');
+      let groupFieldIdx = 0;
+      containerChildren.forEach((containerChild) => {
+        const handler = getHandler(containerChild, [node], ctx);
+        if (handler) {
+          const {
+            gIdx,
+            groupField,
+          } = findFieldByType(handler, groupFields, field.fields, groupFieldIdx);
+          if (groupField) {
+            if (properties[groupField.name]) {
+              properties[groupField.name] = encodeHtml(`<p>${properties[groupField.name]}<p><p>${toString(containerChild).trim()}</p>`);
+            } else {
+              properties[groupField.name] = toString(containerChild).trim();
+            }
+            collapseField(groupField.name, field.fields, properties, containerChild);
+          }
+          groupFieldIdx = gIdx;
+        }
+      });
+    } else if (field.name === 'classes') {
       const classNames = node?.properties?.className;
       if (classNames?.length > 1) {
         properties[field.name] = `[${classNames.slice(1).join(', ')}]`;
@@ -132,7 +221,7 @@ function getBlockItems(node, filter, ctx) {
   for (let i = 0; i < rows.length; i += 1) {
     const itemPath = `${path}/item${i + 1}`;
     pathMap.set(rows[i], itemPath);
-    const properties = extractProperties(rows[i], filter, ctx.componentModels);
+    const properties = extractProperties(rows[i], filter, ctx);
     elements.push({
       type: 'element',
       name: i > 0 ? `item_${i - 1}` : 'item',
@@ -159,7 +248,7 @@ function generateProperties(node, ctx) {
   }
   const { name, filterId } = findNameFilterById(componentDefinition, id);
   const filter = findFilterById(filters, filterId);
-  const attributes = extractProperties(node, id, componentModels, 'simple');
+  const attributes = extractProperties(node, id, ctx, 'simple');
   const blockItems = getBlockItems(node, filter, ctx);
   const properties = {
     name,

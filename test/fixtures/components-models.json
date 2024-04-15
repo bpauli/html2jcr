@@ -125,5 +125,118 @@
         "valueType": "string"
       }
     ]
+  },
+  {
+    "id": "teaser-grouping",
+    "fields": [
+      {
+        "component": "reference",
+        "name": "image",
+        "label": "Image",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Alt",
+        "name": "imageAlt",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Subtitle",
+        "name": "teaserText_subtitle",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Title",
+        "name": "teaserText_title",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "label": "Text",
+        "name": "teaserText_titleType",
+        "valueType": "string",
+        "options" : [
+          { "name": "H1", "value": "h1" },
+          { "name": "H2", "value": "h2" },
+          { "name": "H3", "value": "h3" },
+          { "name": "H4", "value": "h4" },
+          { "name": "H5", "value": "h5" },
+          { "name": "H6", "value": "h6" }
+        ]
+      },
+      {
+        "component": "richtext",
+        "label": "Description",
+        "name": "teaserText_description",
+        "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "label": "CTA 1",
+        "name": "teaserText_cta1",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "label": "Link Type",
+        "name": "teaserText_cta1Type",
+        "valueType": "string",
+        "options" : [
+          { "name": "Default", "value": "default" },
+          { "name": "Primary", "value": "primary" },
+          { "name": "Secondary", "value": "secondary" }          
+        ]
+      },
+      {
+        "component": "text",
+        "label": "Link Text",
+        "name": "teaserText_cta1Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Text",
+        "name": "teaserText_cta1Title",
+        "value": "",
+        "valueType": "string"
+      },
+      {
+        "component": "reference",
+        "label": "CTA 2",
+        "name": "teaserText_cta2",
+        "valueType": "string"
+      },
+      {
+        "component": "select",
+        "label": "Link Type",
+        "name": "teaserText_cta2Type",
+        "valueType": "string",
+        "options" : [
+          { "name": "Default", "value": "default" },
+          { "name": "Primary", "value": "primary" },
+          { "name": "Secondary", "value": "secondary" }          
+        ]
+      },
+      {
+        "component": "text",
+        "label": "Link Text",
+        "name": "teaserText_cta2Text",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "label": "Text",
+        "name": "teaserText_cta2Title",
+        "value": "",
+        "valueType": "string"
+      }
+    ]
   }
 ]

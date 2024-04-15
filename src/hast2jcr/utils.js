@@ -1,4 +1,7 @@
 export function encodeHTMLEntities(str) {
+  if (!str) {
+    return '';
+  }
   return str.replace(/&(?!amp;|lt;|gt;|quot;|apos;|#\d+;)/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 }
 
